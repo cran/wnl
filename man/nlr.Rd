@@ -16,7 +16,7 @@ nlr(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms,
   \item{LB}{Lower bound for \code{optim} function. Default value is 0.}
   \item{UB}{Upper bound for \code{optim} function. Default value is 1e+06.}
   \item{Error}{Error model. One of \code{"A"} for additive error, \code{"POIS"} for poisson error, \code{"P"} for proportional error, and \code{"C"} for combined error model.}
-  \item{ObjFx}{Objective function to be minimized. Default is maximum likelihood estimation function.}
+  \item{ObjFx}{Objective function to be minimized. Default is maximum likelihood estimation function(-2 log likelihood).}
   \item{SecNames}{Names of secondary parameter estimates}
   \item{SecForms}{Formula to calculate the secondary parameter estimates}
   \item{Method}{\code{"L-BFGS-B"} is default. See \code{optim} for more detail.}
@@ -25,7 +25,22 @@ nlr(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms,
 This uses scaled transformed parameters and environment \code{e} internally.
 }
 \value{
-This returns point estimate, standard error, relative standard error, covariance matrix of estimates, run test results on residuals, Objective Function Value, AIC, AICc, Convergence code, and Message. More details are stored in the environment \code{e}.
+  \item{Est}{Point estimate(PE) with standard error(SE) and relative standard error(RSE)}
+  \item{Cov}{Variance-covariance matrix of objective function at the value of point estimates}
+  \item{run$m}{Count of positive residuals}
+  \item{run$n}{Count of negative residuals}
+  \item{run$run}{Count of runs of residuals}
+  \item{run$p.value}{P value of run test with excluding zero points}
+  \item{Objective Function Value}{Minimum value of objective function}
+  \item{-2LL}{-2 times log likelihood}
+  \item{AIC}{Akaike Information Criterion}
+  \item{AICc}{Corrected Akaike Information Criterion}
+  \item{BIC}{Schwarz Bayesian Information Criterion}
+  \item{Convergence}{Convergence code from \code{optim}}
+  \item{Message}{Message from \code{optim}.}
+  \item{Prediction}{Fitted(predicted) values}
+  \item{Residuals}{Residuals}
+  \item{Elapsed Time}{Consumed time by minimization}
 }
 \author{Kyun-Seop Bae <k@acr.kr>}
 \examples{
@@ -56,4 +71,4 @@ for (i in 1:nID) {
 }
 
 }
-\keyword{nlr}
+\keyword{Maximum Likelihood Estimation}

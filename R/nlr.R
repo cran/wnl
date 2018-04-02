@@ -1,6 +1,11 @@
 nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms, Method="L-BFGS-B")
 {
 #  e = new.env(parent=globalenv()) # environment should exist
+  t1 = Sys.time()
+  if (!("DV" %in% colnames(Data))) stop("Data should have 'DV' column.")
+  if (sum(is.na(Data[,"DV"])) > 0) stop("DV column should not have NAs.")
+  if (length(pNames) != length(IE)) stop("pNames and IE should match.")
+  if (mean(abs(Data[,"DV"])) < 1e-6 | mean(abs(Data[,"DV"])) > 1e6) warning("DV is too large or too small. Rescale it.")  
   e$Fx = Fx # function of structural model. Fx should return a vector of the same length to Y
   e$DATA = Data # Fx use this
   e$Y  = Data[,"DV"] # Observation values, Data should have "DV" column.
@@ -9,7 +14,7 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   e$IE = IE # initial estimate of Fx arguments
   e$nTheta = length(IE)
   e$Error = UT(Error) # BasicUtil fx toupper and Trim
-  e$AddErrVar = (min(e$Y[e$Y > 0])/4)^2 # initial estimate of addtive error varaince
+  e$AddErrVar = min(1e5, (min(e$Y[e$Y > 0])/4)^2) # initial estimate of addtive error varaince
   e$PoisErrVar = 1    # initial estimate of proportional error varaince
   e$PropErrVar = 0.1  # initial estimate of proportional error varaince
   e$Obj = ObjFx
@@ -88,14 +93,16 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
     }
     e$Est = cbind(e$Est, tRes)
   }
-
-  e$Residual = e$Y - e$Fx(e$PE[1:e$nTheta])
+  e$Pred = e$Fx(e$PE[1:e$nTheta])
+  e$Residual = e$Y - e$Pred
   e$run = run.test(e$Residual)
-  e$AIC = e$nRec*log(2*pi) + e$r$value + 2*e$nPara
+  e$'-2LL' = e$nRec*log(2*pi) + e$r$value
+  e$AIC = e$'-2LL' + 2*e$nPara
   e$AICc = e$AIC + 2*e$nPara*(e$nPara + 1)/(e$nRec - e$nPara - 1)
-  
-  Result = list(e$Est, e$Cov, e$run, e$r$value, e$AIC, e$AICc, e$r$covergence, e$r$message)
-  names(Result) = c("Est", "Cov", "run", "Objective Function Value", "AIC", "AICc", "Convergence", "Message")
+  e$BIC = e$'-2LL' + e$nPara*log(e$nRec)
+  e$Elapsed = difftime(Sys.time(), t1)
+  Result = list(e$Est, e$Cov, e$run, e$r$value, e$'-2LL', e$AIC, e$AICc, e$BIC, e$r$covergence, e$r$message, e$Pred, e$Residual, e$Elapsed)
+  names(Result) = c("Est", "Cov", "run", "Objective Function Value", "-2LL", "AIC", "AICc", "BIC", "Convergence", "Message", "Prediction", "Residual", "Elapsed Time")
   return(Result)
 }
 

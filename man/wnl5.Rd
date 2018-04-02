@@ -21,7 +21,20 @@ wnl5(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjLS)
 This uses scaled transformed parameters and environment \code{e} internally. Here we do not provide standard error. If you want standard error, use \code{nlr}.
 }
 \value{
-This returns point estimates, run test results on residuals, AIC, and SBC. Details are stored in the environment \code{e}.
+  \item{PE}{Point estimates}
+  \item{WRSS}{Weighted Residual Sum of Square}
+  \item{run$m}{Count of positive residuals}
+  \item{run$n}{Count of negative residuals}
+  \item{run$run}{Count of runs of residuals}
+  \item{run$p.value}{P value of run test with excluding zero points}
+  \item{Objective Function Value}{Minimum value of objective function}
+  \item{AIC}{Akaike Information Criterion}
+  \item{SBC}{Schwarz Bayesian Information Criterion}
+  \item{Condition Number}{Condition number}
+  \item{Message}{Message from \code{optim}.}
+  \item{Prediction}{Fitted(predicted) values}
+  \item{Residuals}{Residuals}
+  \item{Elapsed Time}{Consumed time by minimization}
 }
 \author{Kyun-Seop Bae <k@acr.kr>}
 \examples{
@@ -50,4 +63,4 @@ for (i in 1:nID) {
 }
 
 }
-\keyword{wnl5}
+\keyword{Least Square Estimation (Old WinNonlin)}

@@ -4,7 +4,11 @@ cmpChi = function(r1, r2)
   npar2 = dim(r2$Cov)[1]
   ofv1 = r1$'Objective Function Value'
   ofv2 = r2$'Objective Function Value'
-  if ((npar2 - npar1)*(ofv2 - ofv1) < 0) {
+  if ((npar2 == npar1) & abs(ofv2 - ofv1) > .Machine$double.eps) {
+    p.val = 0
+  } else if (abs(ofv2 - ofv1) <= .Machine$double.eps & npar1 != npar2 ) {
+    p.val = 1
+  } else if ((npar2 - npar1)*(ofv2 - ofv1) < 0) {
     p.val = 1 - pchisq(abs(ofv2 - ofv1), abs(npar2 - npar1))
   } else {
     p.val = 0 

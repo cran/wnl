@@ -1,7 +1,16 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
 
-\section{Version 0.3.3 (2017-12-30)}{
+\section{Version 0.4.0 (2018-04-02)}{
+  \itemize{
+    \item{\code{dx} for simplest diagnostic plot is added.}
+    \item{\code{nlr} and \code{wnl5} returns more.}
+    \item{\code{nlr} checks arguments more.}
+    \item{Better p-value from \code{cmpChi}.}
+  }
+}
+
+\section{Version 0.3.3 (2018-03-01)}{
   \itemize{
     \item{\code{nlr} returns more information.}
     \item{\code{cmpChi} is newly introduced.}

@@ -9,8 +9,7 @@ This is a set of minimization tools to solve all the examples in the book 'Pharm
 }
 \author{Kyun-Seop Bae <k@acr.kr>}
 \references{Gabrielsson J, Weiner D. Pharmacokinetic and Pharmacodynamic Data Analysis - Concepts and Applications. 5th ed. 2016.}
-\keyword{Pharmacokinetics}
-\keyword{Pharmacodynamics}
+\keyword{Packages}
 \examples{
 tData = Theoph
 colnames(tData) = c("ID", "BWT", "DOSE", "TIME", "DV")
