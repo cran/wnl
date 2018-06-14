@@ -2,14 +2,14 @@
 \alias{Secondary}
 \title{Get Secondary Parameter Estimates}
 \description{
-Get standard error and relative standard error (cv) of secondary paramter estimate
+Get standard error and relative standard error (cv) of the secondary parameter estimate
 }
 \usage{
 Secondary(Formula, PE, COV)
 }
 \arguments{
   \item{Formula}{Formula to calculate the secondary parameter estimate}
-  \item{PE}{Point estimates of primary estimates with names}
+  \item{PE}{Point estimates of primary parameters with names}
   \item{COV}{Variance-covariance matrix of primary estimates}
 }
 \details{

@@ -9,14 +9,14 @@ nlr(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms,
     Method="L-BFGS-B")
 }
 \arguments{
-  \item{Fx}{Function for structural model. It should return a vector of same length to observations.}
+  \item{Fx}{Function for structural model. It should return a vector of the same length to observations.}
   \item{Data}{Data table which will be used in Fx. Fx should access this with \code{e$DATA}.}
   \item{pNames}{Parameter names in the order of Fx arguments}
   \item{IE}{Initial estimates of parameters}
-  \item{LB}{Lower bound for \code{optim} function. Default value is 0.}
-  \item{UB}{Upper bound for \code{optim} function. Default value is 1e+06.}
-  \item{Error}{Error model. One of \code{"A"} for additive error, \code{"POIS"} for poisson error, \code{"P"} for proportional error, and \code{"C"} for combined error model.}
-  \item{ObjFx}{Objective function to be minimized. Default is maximum likelihood estimation function(-2 log likelihood).}
+  \item{LB}{Lower bound for \code{optim} function. The default value is 0.}
+  \item{UB}{Upper bound for \code{optim} function. The default value is 1e+06.}
+  \item{Error}{Error model. One of \code{"A"} for additive error, \code{"POIS"} for Poisson error, \code{"P"} for proportional error, and \code{"C"} for combined error model.}
+  \item{ObjFx}{Objective function to be minimized. The default is maximum likelihood estimation function(-2 log likelihood).}
   \item{SecNames}{Names of secondary parameter estimates}
   \item{SecForms}{Formula to calculate the secondary parameter estimates}
   \item{Method}{\code{"L-BFGS-B"} is default. See \code{optim} for more detail.}
@@ -26,12 +26,12 @@ This uses scaled transformed parameters and environment \code{e} internally.
 }
 \value{
   \item{Est}{Point estimate(PE) with standard error(SE) and relative standard error(RSE)}
-  \item{Cov}{Variance-covariance matrix of objective function at the value of point estimates}
+  \item{Cov}{Variance-covariance matrix of the objective function at the value of point estimates}
   \item{run$m}{Count of positive residuals}
   \item{run$n}{Count of negative residuals}
   \item{run$run}{Count of runs of residuals}
   \item{run$p.value}{P value of run test with excluding zero points}
-  \item{Objective Function Value}{Minimum value of objective function}
+  \item{Objective Function Value}{Minimum value of the objective function}
   \item{-2LL}{-2 times log likelihood}
   \item{AIC}{Akaike Information Criterion}
   \item{AICc}{Corrected Akaike Information Criterion}

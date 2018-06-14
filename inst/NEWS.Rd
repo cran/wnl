@@ -1,6 +1,12 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
 
+\section{Version 0.4.1 (2018-05-02)}{
+  \itemize{
+    \item{Errata in manual corrected.}
+  }
+}
+
 \section{Version 0.4.0 (2018-04-02)}{
   \itemize{
     \item{\code{dx} for simplest diagnostic plot is added.}

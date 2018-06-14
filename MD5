@@ -1,4 +1,4 @@
-b9187528a92f8bf195ca5e2416e6d20d *DESCRIPTION
+964261429de585b1ad0ca522078c8835 *DESCRIPTION
 6e182aead6f74b388217bc3a0324aed1 *NAMESPACE
 117a37f41d92aaa0ca02f28370f0b157 *R/BasicUtil.R
 2a87e3620db8328466b3dadb8f368f21 *R/Objs.R
@@ -8,14 +8,14 @@ b801ef09ac2e1d9c931f1d08fe4a6b90 *R/cmpChi.R
 007552ba75c3c4382f1c13c9ce1a5fdb *R/nlr.R
 19a512c05864cf9902bc49335917912b *R/sysdata.rda
 43d78a974589c393897dca7131944451 *R/wnl5.R
-2a9c3217a15372112c10d484ba8ccfed *inst/NEWS.Rd
-1e13e16979231603cf69ac488dafe3a6 *inst/doc/wnl-manual.pdf
+76a54b7fbec10752af2f3ce9f20f4a0a *inst/NEWS.Rd
+be5b1636705fd8c8476f91953edd50bd *inst/doc/wnl-manual.pdf
 9e17aba9a349e47eed1a4658ae8c1d43 *man/BasicUtil.Rd
 dbca8d95b751e8d0a44b3d520fa99682 *man/Objs.Rd
-d25cdb518836cce290faeb061d375915 *man/Secondary.Rd
+473916c208b3d722e54944b5f2a4a18f *man/Secondary.Rd
 fc55e5845bc733167940373376146426 *man/cmpChi.Rd
-de086cb11e877339ac1bdbe1bfefec10 *man/dx.Rd
+e1e7543809d439770aa7d1cb6e897193 *man/dx.Rd
 ee0ea2d2db69f309039e2d70a791ac0a *man/e.Rd
-cf65732f1646345b05d4776af752a743 *man/nlr.Rd
-6d6f5468f3a1c4b3af88c131f568e6e8 *man/wnl-package.Rd
-5dc6a0bd25422553d18c45c17b67d0e9 *man/wnl5.Rd
+c43c445b1072f66f7163a0deb9013d8b *man/nlr.Rd
+8640ba18696633870f706cd63f6d440c *man/wnl-package.Rd
+9910e773f4a9e6679b54d7dbe5f72215 *man/wnl5.Rd

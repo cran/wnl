@@ -2,7 +2,7 @@
 \alias{dx}
 \title{Simplest diagnostic plot for minimization result}
 \description{
-It performs simplest diagnostic plot from the result of \code{nlr}.
+It performs a simple diagnostic plot from the result of \code{nlr}.
 }
 \usage{
 dx(r)
@@ -14,7 +14,7 @@ dx(r)
 This plots 'Observation vs. Prediction' and 'Normalized Redisual vs. Prediction' only. Normalized residual are meant to be distributed as standard normal distribution, N(0, 1).
 }
 \value{
-This just draws plot.
+This just draws a plot.
 }
 \author{Kyun-Seop Bae <k@acr.kr>}
 
