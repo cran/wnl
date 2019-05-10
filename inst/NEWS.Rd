@@ -1,6 +1,18 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
 
+\section{Version 0.5.0 (2019-05-09)}{
+  \itemize{
+    \item{Analytical solutions of compartmental models added.}
+  }
+}
+
+\section{Version 0.4.2 (2018-09-30)}{
+  \itemize{
+    \item{Combined error with fixed additive variance model added.}
+  }
+}
+
 \section{Version 0.4.1 (2018-05-02)}{
   \itemize{
     \item{Errata in manual corrected.}

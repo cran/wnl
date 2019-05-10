@@ -15,7 +15,7 @@ nlr(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms,
   \item{IE}{Initial estimates of parameters}
   \item{LB}{Lower bound for \code{optim} function. The default value is 0.}
   \item{UB}{Upper bound for \code{optim} function. The default value is 1e+06.}
-  \item{Error}{Error model. One of \code{"A"} for additive error, \code{"POIS"} for Poisson error, \code{"P"} for proportional error, and \code{"C"} for combined error model.}
+  \item{Error}{Error model. One of \code{"A"} for additive error, \code{"POIS"} for Poisson error, \code{"P"} for proportional error, \code{"C"} for combined error model.}
   \item{ObjFx}{Objective function to be minimized. The default is maximum likelihood estimation function(-2 log likelihood).}
   \item{SecNames}{Names of secondary parameter estimates}
   \item{SecForms}{Formula to calculate the secondary parameter estimates}

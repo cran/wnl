@@ -14,7 +14,7 @@ wnl5(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjLS)
   \item{IE}{Initial estimates of parameters}
   \item{LB}{Lower bound for \code{optim} function. The default value is 0.}
   \item{UB}{Upper bound for \code{optim} function. The default value is 1e+06.}
-  \item{Error}{Error model. One of \code{"POIS"} for Poisson error, \code{"PROP"} for proportional error, and others for additive error model.}
+  \item{Error}{Error model. One of \code{"POIS"} for Poisson error, \code{"P"} for proportional error, and others for additive error model.}
   \item{ObjFx}{Objective function to be minimized. The default is least square function.}
 }
 \details{

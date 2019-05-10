@@ -22,6 +22,8 @@ ObjDef = function(vPara) # Default Obj for Covariance Step (original obj)
     Ri[Fi == 0] = 0
   } else if (e$Error == "C") {
     Ci = rep(vPara[e$SGindex[1]], e$nRec) + vPara[e$SGindex[2]]*Fi*Fi
+#  } else if (e$Error == "CFA") { # Additive fixed propertional
+#    Ci = (e$FASD + sqrt(vPara[e$SGindex[1]])*Fi)^2
   }
 
   return(sum(log(Ci) + Ri*Ri/Ci))
@@ -32,12 +34,19 @@ ObjLS = function(vPara) # Default Obj for Covariance Step (original obj)
   Fi = e$Fx(vPara)
   Ri = e$Y - Fi
   if (e$Error == "POIS") {
-    Ri[Fi != 0] = Ri[Fi != 0] / sqrt(Fi[Fi != 0])   # Fi should contain zero.
+    Ri[Fi != 0] = Ri[Fi != 0] / sqrt(Fi[Fi != 0])   # Fi should not contain zero.
     Ri[Fi == 0] = 0
-  } else if (e$Error == "PROP") {
-    Ri[Fi != 0] = Ri[Fi != 0] / Fi[Fi != 0]         # Fi should contain zero.
+  } else if (e$Error == "P") {
+    Ri[Fi != 0] = Ri[Fi != 0] / Fi[Fi != 0]         # Fi should not contain zero.
     Ri[Fi == 0] = 0
   }
 
   return(sum(Ri*Ri))
 }
+
+#ObjNo = function(vPara)
+#{
+#  Ri = e$Y - e$Fx(vPara[1:e$nTheta])
+#  Ri[e$Y == -1] = 0
+#  return(e$SumLogCi + sum(Ri*Ri/e$Ci))
+#}
