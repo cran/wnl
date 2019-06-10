@@ -1,4 +1,4 @@
-nComp = function(Sol, Ka, DH)
+nComp = function(Sol, Ka=0, DH)
 {
   L = Sol$L
   Co = Sol$Co

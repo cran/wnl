@@ -1,6 +1,6 @@
 \name{SolComp3}
 \alias{SolComp3}
-\title{Analytical Solution for Three-compartment Model}
+\title{Get Lambdas and Coefficients of Three-compartment Model}
 \description{
 It calculates lambdas and coefficients for three-compartment model from K10, K12, K21, K13, and K31.
 }

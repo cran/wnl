@@ -9,7 +9,7 @@ This is a conventional NONMEM input data format.
 }
 \usage{RptCfg}
 \format{
-  This data frame has 5 columns with 19 time-points for the simulation.
+  This data frame has 5 columns with 18 time-points for the simulation.
   \describe{
     \item{\code{TIME}}{Time}
     \item{\code{AMT}}{Amount given for the compartment of \code{CMT} column}

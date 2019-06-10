@@ -1,11 +1,11 @@
 \name{nComp}
 \alias{nComp}
-\title{Multi-compartment model - analytical}
+\title{Get Amounts of Each Compartments using Lambdas and Coefficients of Multi-compartment Model}
 \description{
 It calculates using multi-compartment model.
 }
 \usage{
-nComp(Sol, Ka, DH)
+nComp(Sol, Ka=0, DH)
 }
 \arguments{
   \item{Sol}{Solution list of lambdas and coefficients}
@@ -14,6 +14,7 @@ nComp(Sol, Ka, DH)
 }
 \details{
 First compartment is the gut compartment for oral dosing. IV bolus and infusion dosing should be done at the second compartment.
+If a bolus dose was given at time T, it is reflected at times of larger than T. This is more close to real observation. ADAPT does like this, but NONMEM does not.
 }
 \value{
 This returns a table with the gut and the other compartment columns

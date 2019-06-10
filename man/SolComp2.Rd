@@ -1,6 +1,6 @@
 \name{SolComp2}
 \alias{SolComp2}
-\title{Analytical Solution for Two-compartment Model}
+\title{Get Lambdas and Coefficients of Two-compartment Model}
 \description{
 It calculates lambdas and coefficients for two-compartment model from K10, K12, and K21.
 }

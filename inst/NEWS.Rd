@@ -1,6 +1,12 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
 
+\section{Version 0.5.1 (2019-06-09)}{
+  \itemize{
+    \item{DAT table changed.}
+  }
+}
+
 \section{Version 0.5.0 (2019-05-09)}{
   \itemize{
     \item{Analytical solutions of compartmental models added.}

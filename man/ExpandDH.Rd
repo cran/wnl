@@ -18,5 +18,8 @@ It expands dosing history table of conventional NONMEM data format. It calculate
 Returns expanded dosing history table.
 }
 \author{Kyun-Seop Bae <k@acr.kr>}
-
+\examples{
+DAT
+ExpandDH(DAT) # One observation point is increased at the time of 27.
+}
 \keyword{Dosing history}
