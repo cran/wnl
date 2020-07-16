@@ -9,6 +9,7 @@ ObjDef = function(vPara) # Default Obj for Covariance Step (original obj)
 {
   Fi = e$Fx(vPara[1:e$nTheta])
   Ri = e$Y - Fi
+  e$Fi = Fi
 
   if (e$Error == "A") {
     Ci = rep(vPara[e$SGindex], e$nRec)
@@ -24,6 +25,11 @@ ObjDef = function(vPara) # Default Obj for Covariance Step (original obj)
     Ci = rep(vPara[e$SGindex[1]], e$nRec) + vPara[e$SGindex[2]]*Fi*Fi
 #  } else if (e$Error == "CFA") { # Additive fixed propertional
 #    Ci = (e$FASD + sqrt(vPara[e$SGindex[1]])*Fi)^2
+  } else if (e$Error == "S") {
+    Si = e$Sx(vPara[1:e$nTheta])
+    Ci = vPara[e$SGindex]*Si
+    Ci[Si == 0] = 1 # Weight cannot be calculated with zero values
+    Ri[Si == 0] = 0
   }
 
   return(sum(log(Ci) + Ri*Ri/Ci))

@@ -6,7 +6,7 @@ dx = function(r)
   if ("AddErrVar" %in% EstNames) wt = wt + r$Est["PE","AddErrVar"]
   if ("PoisErrVar" %in% EstNames) wt = wt + r$Prediction*r$Est["PE","PoisErrVar"]
   if ("PropErrVar" %in% EstNames) wt = wt + r$Prediction^2*r$Est["PE","PropErrVar"]
-
+  if ("ScaleErrVar" %in% EstNames) wt = r$Scale*r$Est["PE","ScaleErrVar"]
 
   dev.new(width=12, height=6)
   DefPar = par(mfrow=c(1,2))

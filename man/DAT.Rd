@@ -7,7 +7,7 @@ An Example of Dosing History Table
 \description{
 This is a conventional NONMEM input data format. 
 }
-\usage{RptCfg}
+\usage{DAT}
 \format{
   This data frame has 5 columns with 18 time-points for the simulation.
   \describe{

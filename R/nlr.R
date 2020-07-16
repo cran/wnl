@@ -1,8 +1,9 @@
-nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms, Method="L-BFGS-B")
+nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms, Method="L-BFGS-B", Sx)
 {
 #  e = new.env(parent=globalenv()) # environment should exist
   t1 = Sys.time()
   e$Fx = Fx # function of structural model. Fx should return a vector of the same length to Y
+  if (toupper(Error)=="S") e$Sx = Sx # Scale (inverse weight) function. Sx should return a matrix of the same length rows to Y
   e$DATA = Data # Fx may use this
   if ("DV2" %in% colnames(Data)) {
     e$Y = Data[,c("DV1","DV2")]
@@ -24,8 +25,9 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   e$AddErrVar = min(1e5, (min(e$Y[e$Y > 0])/4)^2) # initial estimate of addtive error varaince
   e$PoisErrVar = 1    # initial estimate of proportional error varaince
   e$PropErrVar = 0.1  # initial estimate of proportional error varaince
-  e$PowErrPow = 0.5   # initial estimate of power error power
-  e$PowErrVar = 0.1   # initial estimate of power error varaince
+#  e$PowErrPow = 0.5   # initial estimate of power error power
+#  e$PowErrVar = 0.1   # initial estimate of power error varaince
+  e$ScaleErrVar = 1   # initial estimate of scale (inverse weight) vector of error varaince
   e$Obj = ObjFx
 #  e$FASD = rep(FASD, e$nRec) # Fixed Additive Error Variance Vector
 
@@ -49,6 +51,10 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
 #    e$nEps = 1
 #    e$IE = c(e$IE, e$PropErrVar)
 #    e$pNames = c(e$pNames, "PropErrVar")
+  } else if (e$Error == "S") {
+    e$nEps = 1
+    e$IE = c(e$IE, e$ScaleErrVar)
+    e$pNames = c(e$pNames, "ScaleErrVar")
   } else {
     e$nEps = 0
   }
@@ -118,7 +124,9 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
 #    colnames(e$Est) = c(e$pNames, "PowErrSD")
 #  } else if (e$Error == "CFA") {
 #    colnames(e$Est) = c(e$pNames, "PropErrSD")
-  } 
+  } else if (e$Error == "S") {
+    colnames(e$Est) = c(e$pNames, "ScaleErrSD")
+  }
   rownames(e$Est) = c("PE", "SE", "RSE")
 
   if (!missing(SecNames)) {
@@ -144,8 +152,14 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   e$AICc = e$AIC + 2*e$nPara*(e$nPara + 1)/(e$nRec - e$nPara - 1)
   e$BIC = e$'-2LL' + e$nPara*log(e$nRec)
   e$Elapsed = difftime(Sys.time(), t1)
-  Result = list(e$Est, e$Cov, e$run, e$r$value, e$'-2LL', e$AIC, e$AICc, e$BIC, e$r$covergence, e$r$message, e$Pred, e$Residual, e$Elapsed)
-  names(Result) = c("Est", "Cov", "run", "Objective Function Value", "-2LL", "AIC", "AICc", "BIC", "Convergence", "Message", "Prediction", "Residual", "Elapsed Time")
+  if (toupper(Error) != "S") {
+    Result = list(e$Est, e$Cov, e$run, e$r$value, e$'-2LL', e$AIC, e$AICc, e$BIC, e$r$covergence, e$r$message, e$Pred, e$Residual, e$Elapsed)
+    names(Result) = c("Est", "Cov", "run", "Objective Function Value", "-2LL", "AIC", "AICc", "BIC", "Convergence", "Message", "Prediction", "Residual", "Elapsed Time")
+  } else {
+    Scale = Sx(e$Est["PE", 1:e$nTheta])
+    Result = list(e$Est, e$Cov, e$run, e$r$value, e$'-2LL', e$AIC, e$AICc, e$BIC, e$r$covergence, e$r$message, e$Pred, e$Residual, Scale, e$Elapsed)
+    names(Result) = c("Est", "Cov", "run", "Objective Function Value", "-2LL", "AIC", "AICc", "BIC", "Convergence", "Message", "Prediction", "Residual", "Scale", "Elapsed Time")    
+  }
   return(Result)
 }
 

@@ -1,6 +1,12 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
 
+\section{Version 0.6.0 (2020-07-14)}{
+  \itemize{
+    \item{\code{nlr} function gained Error="S" (scale) option. This enables GLS.}
+  }
+}
+
 \section{Version 0.5.1 (2019-06-09)}{
   \itemize{
     \item{DAT table changed.}

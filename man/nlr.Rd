@@ -6,7 +6,7 @@ It performs nonlinear regression usually for pharmacokinetic and pharmacodynamic
 }
 \usage{
 nlr(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms, 
-    Method="L-BFGS-B")
+    Method="L-BFGS-B", Sx)
 }
 \arguments{
   \item{Fx}{Function for structural model. It should return a vector of the same length to observations.}
@@ -20,6 +20,7 @@ nlr(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms,
   \item{SecNames}{Names of secondary parameter estimates}
   \item{SecForms}{Formula to calculate the secondary parameter estimates}
   \item{Method}{\code{"L-BFGS-B"} is default. See \code{optim} for more detail.}
+  \item{Sx}{Scale function. This is usually the inverse of weight. It should return the same length(nrow) of Y. When Error="S", Scale function should be provided as \code{Sx}.}
 }
 \details{
 This uses scaled transformed parameters and environment \code{e} internally.
