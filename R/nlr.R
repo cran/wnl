@@ -90,7 +90,7 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   e$PE = exp(e$r$par - e$alpha)/(exp(e$r$par - e$alpha) + 1)*(e$UB - e$LB) + e$LB
 
   e$InvCov = hessian(e$Obj, e$PE)/2  # FinalEst from EstStep()
-  e$Cov = solve(e$InvCov)
+  e$Cov = qr.solve(e$InvCov)
   colnames(e$Cov) = e$pNames
   rownames(e$Cov) = e$pNames
 
@@ -104,7 +104,7 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   e$Correl = cov2cor(e$Cov)
   e$EigenVal = eigen(e$Correl)$values
 
-  if (e$SGindex > 0) {  
+  if (e$SGindex[1] > 0) {  
     e$PE = c(e$PE, sqrt(e$PE[e$SGindex]))
     e$SE = c(e$SE, e$SE[e$SGindex]/2/sqrt(e$PE[e$SGindex])) # Delta method, See Wackerly p484, gr = (x^0.5)' = 0.5x^(-0.5), gr^2 = 1/(4*x)
   }

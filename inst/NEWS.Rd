@@ -1,6 +1,13 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
 
+\section{Version 0.6.1 (2020-08-15)}{
+  \itemize{
+    \item{\code{qr.solve} is used instead of \code{solve}.}
+    \item{Documents enhanced.}
+  }
+}
+
 \section{Version 0.6.0 (2020-07-14)}{
   \itemize{
     \item{\code{nlr} function gained Error="S" (scale) option. This enables GLS.}
