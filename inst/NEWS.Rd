@@ -1,6 +1,12 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
 
+\section{Version 0.6.2 (2021-08-07)}{
+  \itemize{
+    \item{\code{pComp} for plotting compartment model diagram is added.}
+  }
+}
+
 \section{Version 0.6.1 (2020-08-15)}{
   \itemize{
     \item{\code{qr.solve} is used instead of \code{solve}.}
