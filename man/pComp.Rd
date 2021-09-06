@@ -5,13 +5,14 @@
 It plots the diagrom of a comparment model.
 }
 \usage{
-pComp(dComp, dRate, Shape="rect", Bx=0.3, By=0.2, Cex=1.0, Lwd=3, Radius=0.3, 
-      thIn=pi/2, thOut=pi/2, ...)
+pComp(dComp, dRate, Shape="rect", Col=NA, Bx=0.3, By=0.2, Cex=1.0, Lwd=3, 
+      Radius=0.3, thIn=pi/2, thOut=pi/2, ...)
 }
 \arguments{
   \item{dComp}{data.frame for a compartment model. See the example.}
   \item{dRate}{data.frame for rate information. See the example.}
-  \item{Shape}{Rectangle or cricle}
+  \item{Shape}{rectangle or cricle}
+  \item{Col}{filling color}
   \item{Bx}{half width of compartment box}
   \item{By}{half height of compartment box}
   \item{Cex}{character expansion}
@@ -19,7 +20,7 @@ pComp(dComp, dRate, Shape="rect", Bx=0.3, By=0.2, Cex=1.0, Lwd=3, Radius=0.3,
   \item{Radius}{radius of compartment circle}
   \item{thIn}{Input angle in radian} 
   \item{thOut}{Output angle in radian}
-   \item{...}{arguments to be passed to \code{plot} function}
+  \item{...}{arguments to be passed to \code{plot} function}
 }
 \details{
   Flow direction is from the top to bottom.
@@ -34,11 +35,10 @@ dA = data.frame(No = c(1, 2, 3, 4), Name=c("Gut Depot", "Skin Depot", "Central",
 dB = data.frame(From = c(1, 2, 3, 4, 3, 0, 0), To=c(3, 3, 4, 3, 5, 1, 2), 
                 Name=c("KA", "KA2", "K12", "K21", "CL", "F1", "F2"))
 
-#par(oma=c(0, 0, 0, 0), mar=c(0, 0, 0, 0))
 pComp(dA, dB)
-#par(oma=c(0, 0, 0, 0), mar=c(0, 0, 1, 0))
+#par(oma=c(0, 0, 0, 0), mar=c(0, 0, 1, 0)) # If need, adjust margin before calling
 pComp(dA, dB, "circ", main="Compartmental Model Diagram")
 
-pComp(dA, dB, "circ", main="Compartmental Model Diagram", thIn=pi/4, thOut=pi/4)
+pComp(dA, dB, "circ", main="Compartmental Model Diagram", Col="#DDEEFF", asp=1)
 }
 \keyword{Multi-compartment}

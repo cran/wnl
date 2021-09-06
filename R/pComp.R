@@ -1,7 +1,6 @@
-pComp = function(dComp, dRate, Shape="rect", Bx=0.3, By=0.2, Cex=1.0, Lwd=3, Radius=0.3, thIn=pi/2, thOut=pi/2, ...)
+pComp = function(dComp, dRate, Shape="rect", Col=NA, Bx=0.3, By=0.2, Cex=1.0, Lwd=3, Radius=0.3, thIn=pi/2, thOut=pi/2, ...)
 {
   if (!(is.data.frame(dComp) & is.data.frame(dRate))) stop("Two input data.frames are needed!")
-  if (nrow(unique(dRate[,c("From", "To")])) != nrow(dRate)) stop("Rate data.frame should have unique rates!")
 
   Shape = substr(toupper(trimws(Shape)), 1, 4)
   if (Shape == "CIRC") {
@@ -12,10 +11,47 @@ pComp = function(dComp, dRate, Shape="rect", Bx=0.3, By=0.2, Cex=1.0, Lwd=3, Rad
   InOutL = 2*By
 
   d1 = dComp
+  nComp = NROW(d1)
+  if (nComp == 0) stop("There should be at least one compartment!")
+
+  xmax = max(d1$xPos) + Bx
+  xmin = min(d1$xPos) - Bx
+  xRange = xmax - xmin
+  tx = xRange/100 # tiny delta x
+
+  d1$yPos = max(d1$Level) - d1$Level
+  ymax = max(d1$yPos) + 2.5*By
+  ymin = min(d1$yPos) - 2.5*By
+  yRange = ymax - ymin
+  ty = yRange/100 # tiny delta y
+
+## Draw boxes & texts
+  plot(0, 0, type="n", xlim=c(xmin, xmax), ylim=c(ymin, ymax), xlab="", ylab="", bty="n", axes=F, ...)
+  if (Shape == "CIRC") {
+    for (i in 1:nComp) {
+      x0 = d1[i, "xPos"]
+      y0 = d1[i, "yPos"]
+      th = c(seq(0, 2*pi, length.out=200), 0)
+      x = x0 + Radius*cos(th)
+      y = y0 + Radius*sin(th)
+      polygon(x, y, lwd=Lwd, col=Col)
+    }
+  } else {
+    for (i in 1:nComp) {
+      x0 = d1[i, "xPos"]
+      y0 = d1[i, "yPos"]
+      x = c(x0 - Bx, x0 + Bx, x0 + Bx, x0 - Bx, x0 - Bx)
+      y = c(y0 + By, y0 + By, y0 - By, y0 - By, y0 + By)
+      polygon(x, y, lwd=Lwd, col=Col)
+    }
+  }
+  text(d1$xPos, d1$yPos, d1$Name, cex=Cex)
+
+## Draw Rates
   d2 = dRate
-  
-  nComp = nrow(d1)
-  nRate = nrow(d2)
+  nRate = NROW(d2)
+  if (nRate == 0) return()
+  if (nrow(unique(dRate[,c("From", "To")])) != nrow(dRate)) stop("Rate data.frame should have unique rates!")
 
   d2$Both = FALSE
   for (i in 1:nrow(d2)) {
@@ -33,41 +69,6 @@ pComp = function(dComp, dRate, Shape="rect", Bx=0.3, By=0.2, Cex=1.0, Lwd=3, Rad
   d2$x1 = NA
   d2$y1 = NA
 
-  xmax = max(d1$xPos) + Bx
-  xmin = min(d1$xPos) - Bx
-  xRange = xmax - xmin
-  tx = xRange/100 # tiny delta x
-
-  d1$yPos = max(d1$Level) - d1$Level
-  ymax = max(d1$yPos) + 2.5*By
-  ymin = min(d1$yPos) - 2.5*By
-  yRange = ymax - ymin
-  ty = yRange/100 # tiny delta y
-
-  plot(0, 0, type="n", xlim=c(xmin, xmax), ylim=c(ymin, ymax), xlab="", ylab="", bty="n", axes=F, asp=1, ...)
-  text(d1$xPos, d1$yPos, d1$Name, cex=Cex)
-
-## Draw boxes
-  if (Shape == "CIRC") {
-    for (i in 1:nComp) {
-      x0 = d1[i, "xPos"]
-      y0 = d1[i, "yPos"]
-      th = c(seq(0, 2*pi, length.out=200), 0)
-      x = x0 + Radius*cos(th)
-      y = y0 + Radius*sin(th)
-      polygon(x, y, lwd=Lwd)
-    }
-  } else {
-    for (i in 1:nComp) {
-      x0 = d1[i, "xPos"]
-      y0 = d1[i, "yPos"]
-      x = c(x0 - Bx, x0 + Bx, x0 + Bx, x0 - Bx, x0 - Bx)
-      y = c(y0 + By, y0 + By, y0 - By, y0 - By, y0 + By)
-      polygon(x, y, lwd=Lwd)
-    }
-  }
-
-## Draw Rates
   for (i in 1:nRate) {
     n1 = d2[i, "From"] # From compartment number
     n2 = d2[i, "To"]   # To compartment number

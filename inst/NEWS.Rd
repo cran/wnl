@@ -1,6 +1,13 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
 
+\section{Version 0.6.3 (2021-09-06)}{
+  \itemize{
+    \item{\code{pComp} option Col for compartment color added.}
+    \item{\code{pComp} option asp=1 should be provided if you need.}
+  }
+}
+
 \section{Version 0.6.2 (2021-08-07)}{
   \itemize{
     \item{\code{pComp} for plotting compartment model diagram is added.}
