@@ -50,7 +50,7 @@ pComp = function(dComp, dRate, Shape="rect", Col=NA, Bx=0.3, By=0.2, Cex=1.0, Lw
 ## Draw Rates
   d2 = dRate
   nRate = NROW(d2)
-  if (nRate == 0) return()
+  if (nRate == 0) invisible()
   if (nrow(unique(dRate[,c("From", "To")])) != nrow(dRate)) stop("Rate data.frame should have unique rates!")
 
   d2$Both = FALSE

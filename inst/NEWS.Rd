@@ -3,6 +3,12 @@
 
 \section{Version 0.6.3 (2021-09-06)}{
   \itemize{
+    \item{dx() made compatible in rmarkdown}
+  }
+}
+
+\section{Version 0.6.3 (2021-09-06)}{
+  \itemize{
     \item{\code{pComp} option Col for compartment color added.}
     \item{\code{pComp} option asp=1 should be provided if you need.}
   }

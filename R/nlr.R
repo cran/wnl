@@ -22,12 +22,12 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   e$IE = IE # initial estimate of Fx arguments
   e$nTheta = length(IE)
   e$Error = UT(Error) # BasicUtil fx toupper and Trim
-  e$AddErrVar = min(1e5, (min(e$Y[e$Y > 0])/4)^2) # initial estimate of addtive error varaince
-  e$PoisErrVar = 1    # initial estimate of proportional error varaince
-  e$PropErrVar = 0.1  # initial estimate of proportional error varaince
+  e$AddErrVar = min(1e5, (min(e$Y[e$Y > 0])/4)^2) # initial estimate of addtive error variance
+  e$PoisErrVar = 1    # initial estimate of proportional error variance
+  e$PropErrVar = 0.1  # initial estimate of proportional error variance
 #  e$PowErrPow = 0.5   # initial estimate of power error power
-#  e$PowErrVar = 0.1   # initial estimate of power error varaince
-  e$ScaleErrVar = 1   # initial estimate of scale (inverse weight) vector of error varaince
+#  e$PowErrVar = 0.1   # initial estimate of power error variance
+  e$ScaleErrVar = 1   # initial estimate of scale (inverse weight) vector of error variance
   e$Obj = ObjFx
 #  e$FASD = rep(FASD, e$nRec) # Fixed Additive Error Variance Vector
 
