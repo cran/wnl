@@ -6,7 +6,7 @@ It performs nonlinear regression usually for pharmacokinetic and pharmacodynamic
 }
 \usage{
 nlr(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms, 
-    Method="L-BFGS-B", Sx)
+    Method="L-BFGS-B", Sx, k=20)
 }
 \arguments{
   \item{Fx}{Function for structural model. It should return a vector of the same length to observations.}
@@ -21,6 +21,7 @@ nlr(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms,
   \item{SecForms}{Formula to calculate the secondary parameter estimates}
   \item{Method}{\code{"L-BFGS-B"} is default. See \code{optim} for more detail.}
   \item{Sx}{Scale function. This is usually the inverse of weight. It should return the same length(nrow) of Y. When Error="S", Scale function should be provided as \code{Sx}.}
+  \item{k}{1/k likelihood interval(LI) will be provided.}
 }
 \details{
 This uses scaled transformed parameters and environment \code{e} internally.
@@ -28,6 +29,7 @@ This uses scaled transformed parameters and environment \code{e} internally.
 \value{
   \item{Est}{Point estimate(PE) with standard error(SE) and relative standard error(RSE)}
   \item{Cov}{Variance-covariance matrix of the objective function at the value of point estimates}
+  \item{LI}{1/k likelihood interval, at which likelihood drops to 1/k of maximum likelihood. This reflects asymmetry better than confidence interval.}
   \item{run$m}{Count of positive residuals}
   \item{run$n}{Count of negative residuals}
   \item{run$run}{Count of runs of residuals}

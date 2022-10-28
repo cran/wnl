@@ -11,7 +11,7 @@ nComp = function(Sol, Ka=0, DH)
 
   X = matrix(rep(0, (NCOMP + 1)*NTIME), ncol=(NCOMP + 1), nrow=NTIME)
   for (i in 2:NTIME) {
-    pX = X[i - 1,]
+    pX = X[i - 1, ]
 
     for (j in 1:(NCOMP + 1)) {
       if (DH[i - 1, "CMT"] == j & DH[i - 1, "BOLUS"] > 0) {
@@ -24,14 +24,14 @@ nComp = function(Sol, Ka=0, DH)
     E = exp(-L*dT)                                       # Exponentials
 
     Xo = rep(0, NCOMP)
-    for (j in 1:NCOMP) Xo = Xo + pX[1+j] * Co[,,j] %*% E # Bolus
+    for (j in 1:NCOMP) Xo = Xo + pX[1 + j] * Co[, , j] %*% E # Bolus
 
-    if (cR > 0) Xo = Xo + ((cR*Co[,,1]) %*% ((1 - E)/L)) # Infusion
+    if (cR > 0) Xo = Xo + ((cR*Co[, , 1]) %*% ((1 - E)/L)) # Infusion
 
     Ea = exp(-Ka*dT)                                     # Oral
-    if (pX[1] > 0) Xo = Xo + Ka*pX[1]*(Co[,,1] %*% ((E - Ea)/(Ka - L)))
+    if (pX[1] > 0) Xo = Xo + Ka*pX[1]*(Co[, , 1] %*% ((E - Ea)/(Ka - L)))
 
-    X[i,] = c(pX[1]*Ea, Xo)
+    X[i, ] = c(pX[1]*Ea, Xo)
   }
   return(X)
 }

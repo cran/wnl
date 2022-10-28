@@ -7,7 +7,7 @@ Comp1 = function(Ke, Ka=0, DH) # DH: Dosing History
 
   X = matrix(rep(0, (NCOMP + 1)*NTIME), ncol=(NCOMP + 1), nrow=NTIME)
   for (i in 2:NTIME) {
-    pX = X[i - 1,]
+    pX = X[i - 1, ]
     for (j in 1:(NCOMP + 1)) {
       if (DH[i - 1, "CMT"] == j & DH[i - 1, "BOLUS"] > 0) {
         pX[j] = pX[j] + DH[i - 1, "BOLUS"]

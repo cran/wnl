@@ -12,11 +12,11 @@ SolComp2 = function(K10, K12, K21)
   if (prod(Div) == 0) stop("Roots should be distinct real values.")
 
   Co = array(dim=c(2, 2, 2)) # Dividend, numerator, NCOMP=2
-  Co[1,,1] = K21 - L
-  Co[1,,2] = K21
-  Co[2,,1] = K12
-  Co[2,,2] = K10 + K12 - L
-  for (i in 1:2) Co[,i,] = Co[,i,]/Div[i]
+  Co[1, , 1] = K21 - L
+  Co[1, , 2] = K21
+  Co[2, , 1] = K12
+  Co[2, , 2] = K10 + K12 - L
+  for (i in 1:2) Co[, i, ] = Co[, i, ]/Div[i]
 
   return(list(L=L, Co=Co))
 }

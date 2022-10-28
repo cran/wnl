@@ -74,3 +74,210 @@ run.test = function(Residuals)
   names(Result) = c("m", "n", "run", "p.value")
   return(Result)
 }
+
+nGradient = function(func, x)
+{
+  nVar = length(x)
+  nRec = length(func(x))
+  x1 = vector(length = nVar)
+  x2 = vector(length = nVar)
+  mga = matrix(nrow=nRec, ncol = 4)
+  mgr = matrix(nrow=nRec, ncol = nVar)
+
+  for (i in 2:nVar) x1[i] = x2[i] = x[i]
+
+  for (i in 1:nVar) {
+    axi = abs(x[i])
+    if (axi <= 1) { hi = 1e-04 
+    } else { hi = 1e-04*axi }
+    for (k in 1:4) {
+      x1[i] = x[i] - hi
+      x2[i] = x[i] + hi
+      mga[, k] = (func(x2) - func(x1))/(2*hi)
+      hi = hi/2
+    }
+    mga[, 1] = (mga[, 2]*4 - mga[, 1])/3
+    mga[, 2] = (mga[, 3]*4 - mga[, 2])/3
+    mga[, 3] = (mga[, 4]*4 - mga[, 3])/3
+    mga[, 1] = (mga[, 2]*16 - mga[, 1])/15
+    mga[, 2] = (mga[, 3]*16 - mga[, 2])/15
+    mgr[, i] = (mga[, 2]*64 - mga[, 1])/63
+    x1[i] = x2[i] = x[i]
+  }
+
+  return(mgr)
+}
+
+nHessian = function(fx, x)
+{
+  nVar  = length(x)
+  h0 = vector(length=nVar)
+  x1 = vector(length=nVar)
+  x2 = vector(length=nVar)
+
+  f0 = fx(x)
+  nRec = length(f0)
+
+  ha = matrix(nrow=nRec, ncol=4) # Hessian Approximation
+  H = rep(0, nRec*nVar*nVar)     # Hessian Matrix
+  dim(H) = c(nRec, nVar, nVar)
+
+  for (i in 1:nVar) {
+    x1[i] = x2[i] = x[i]
+    axi   = abs(x[i])
+    if (axi < 1) { h0[i] = 1e-4
+    } else       { h0[i] = 1e-4*axi }
+  }
+
+  for (i in 1:nVar) {
+    for (j in i:1) {
+      hi = h0[i]
+      if (i == j) {
+        for (k in 1:4) {
+          x1[i] = x[i] - hi
+          x2[i] = x[i] + hi
+          ha[, k] = (fx(x1) - 2*f0 + fx(x2))/(hi*hi)
+          hi = hi/2
+        }
+      } else {
+        hj = h0[j]
+        for (k in 1:4) {
+          x1[i] = x[i] - hi
+          x1[j] = x[j] - hj
+          x2[i] = x[i] + hi
+          x2[j] = x[j] + hj
+          ha[, k] = (fx(x1) - 2*f0 + fx(x2) - H[, i, i]*hi*hi - H[, j, j]*hj*hj)/(2*hi*hj)
+          hi = hi / 2
+          hj = hj / 2
+        }
+      }
+      w = 4
+      for (m in 1:2) {
+        for (k in 1:(4 - m)) ha[, k] = (ha[, k + 1]*w - ha[, k])/(w - 1)
+        w = w*4
+      }
+      H[, i, j] = (ha[, 2]*64 - ha[, 1]) / 63
+      if (i != j) H[, j, i] = H[, i, j] 
+      x1[j] = x2[j] = x[j]
+    }
+    x1[i] = x2[i] = x[i]
+  }
+
+  return(H)
+}
+
+Hougaard = function(J, H, ssq)
+{# J : graident, H: hessian, ssq: sigma square  
+  z = NCOL(J)
+  m = NROW(J)
+  if (z*m == 0) stop("No graident information!")
+
+  G2SWEEP = function(A, Augmented=FALSE, eps=1e-8)
+  {
+    idx = abs(diag(A)) > eps
+    p = sum(idx, na.rm=T)
+    p0 = ifelse(Augmented, p - 1, p)
+    if (p == 0 | p0 < 1) { A[, ] = 0 ; attr(A, "rank") = 0 ; return(A) }
+    B = A[idx, idx, drop=F]
+
+    r = 0
+    for (k in 1:p0) {
+      d = B[k, k]
+      if (abs(d) < eps) { B[k, ] = 0 ; B[, k] = 0 ; next }
+      B[k, ] = B[k, ]/d
+      r = r + 1
+      for (i in 1:p) {
+        if (i != k) {
+          c0 = B[i, k]
+          B[i, ] = B[i, ] - c0*B[k, ]
+          B[i, k] = -c0/d
+        }
+      }
+      B[k, k] = 1/d
+    }
+
+    A[!idx, !idx] = 0
+    A[idx, idx] = B
+    attr(A, "rank") = r
+    return(A)
+  }
+
+  L = G2SWEEP(crossprod(J))
+  if (attr(L, "rank") < ncol(L)) warning("Crossproduct of gradient is singular!")
+
+  W = rep(0, z^3)
+  dim(W) = rep(z, 3)
+  for (k in 1:z) {
+    for (p in 1:z) {
+      for(j in 1:z) {
+        for (i in 1:m) W[k, p, j] = W[k, p, j] + J[i, k]*H[i, p, j]
+      }
+    }
+  }
+
+  TM = rep(NA, z)
+  for (i in 1:z) {
+    tRes = 0
+    for (j in 1:z) {
+      for (k in 1:z) {
+        for (p in 1:z) {
+          tRes = tRes + L[i, j]*L[i, k]*L[i, p]*(W[j, k, p] + W[k, j, p] + W[p, k, j])
+        }
+      }
+    }
+    TM[i] = -ssq^2*tRes
+  }
+  
+  SK = rep(NA, z)
+  for (i in 1:z) SK[i] = TM[i]/(ssq*L[i, i])^1.5
+  names(SK) = colnames(J)
+  return(SK)
+}
+
+pProf = function(Title = "", ...)
+{
+  mfRow = ceiling(sqrt(e$nPara))
+  mfCol = ceiling(e$nPara/mfRow)
+  oPar = par(mfrow=c(mfRow, mfCol))
+  Args = list(...)
+  if (is.null(Args$ylab)) Args$ylab = "-2LL"
+  if (is.null(Args$type)) Args$type = "l"
+
+  for (j in 1:e$nPara) {
+    x = e$mPar[, j]
+    y = e$mOFV[, j]
+    if (is.finite(min(x)) & is.finite(max(x)) & is.finite(min(y)) & is.finite(max(y))) {
+      Args$x = x
+      Args$y = y
+      RdUdL = format((e$LI[2, j] - e$PE[j])/(e$PE[j] - e$LI[1, j]), digits=3)
+      Args$xlab = paste0(e$pNames[j], " = ", format(e$PE[j], digits=2), ", dU/dL = ", RdUdL)
+      do.call(plot, Args)
+      abline(h = e$'-2LL' + e$fCut, lty=2)
+      abline(v = e$PE[j], lty=3)
+      text(e$LI[, j], e$'-2LL', labels = format(e$LI[, j], digits=2))
+    }
+  }
+  if (trimws(Title) != "") title(Title, outer=TRUE)
+  par(oPar)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

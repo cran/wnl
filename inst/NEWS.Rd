@@ -1,9 +1,24 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
 
+\section{Version 0.7.0 (2022-10-31)}{
+  \itemize{
+    \item{hSkew() function added}
+    \item{nlr function returns 1/8 likelihood interval which is similar to 95 percent CI.}
+    \item{pProf() internal function plots likelihood profile and interval for the last nlr() run.}
+  }
+}
+
+\section{Version 0.6.4 (2021-11-22)}{
+  \itemize{
+    \item{Minor beutification of the script - more spaces}
+    \item{dx() further check default graphic parameter}
+  }
+}
+
 \section{Version 0.6.3 (2021-09-06)}{
   \itemize{
-    \item{dx() made compatible in rmarkdown}
+    \item{dx() made compatible for rmarkdown}
   }
 }
 

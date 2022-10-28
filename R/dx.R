@@ -10,7 +10,7 @@ dx = function(r)
 
   if (attr(dev.cur(), "names") == "null device") {
     dev.new(width=12, height=6)
-    DefPar = par(mfrow=c(1,2))
+    DefPar = par(mfrow=c(1, 2))
   }
   plot(r$Prediction, r$Prediction + r$Residual, xlab="Prediction", ylab="Observation", pch=16)
   abline(a=0, b=1, lty=3)

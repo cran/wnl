@@ -4,7 +4,7 @@ wnl5 = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjLS)
   t1 = Sys.time()
   e$Fx = Fx # function of structural model. Fx should return a vector of the same length to Y
   e$DATA = Data # Fx use this
-  e$Y  = Data[,"DV"] # Observation values, Data should have "DV" column.
+  e$Y = Data[,"DV"] # Observation values, Data should have "DV" column.
   e$nRec = length(e$Y)
   e$IE = IE # initial estimate of Fx arguments
   e$nPara = length(IE)
