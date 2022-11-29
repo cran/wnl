@@ -246,7 +246,7 @@ pProf = function(Title = "", ...)
   for (j in 1:e$nPara) {
     x = e$mPar[, j]
     y = e$mOFV[, j]
-    if (is.finite(min(x)) & is.finite(max(x)) & is.finite(min(y)) & is.finite(max(y))) {
+    if (is.finite(min(x)) & is.finite(max(x)) & is.finite(min(y, na.rm=T)) & is.finite(max(y, na.rm=T))) {
       Args$x = x
       Args$y = y
       RdUdL = format((e$LI[2, j] - e$PE[j])/(e$PE[j] - e$LI[1, j]), digits=3)

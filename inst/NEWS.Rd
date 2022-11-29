@@ -1,7 +1,13 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
 
-\section{Version 0.7.0 (2022-10-31)}{
+\section{Version 0.7.1 (2022-11-28)}{
+  \itemize{
+    \item{pProf() bug fixed for NaNs}
+  }
+}
+
+\section{Version 0.7.0 (2022-10-28)}{
   \itemize{
     \item{hSkew() function added}
     \item{nlr function returns 1/8 likelihood interval which is similar to 95 percent CI.}
