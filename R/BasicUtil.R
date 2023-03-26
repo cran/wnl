@@ -2,8 +2,6 @@
 
 #Note = function() file.show(system.file("NOTE.txt", package="NonCompart"))
 
-UT  = function(x) toupper(gsub("^\\s+|\\s+$", "", x))
-
 s2o = function(vPara) # scaled to original parameters
 {
   b0 = exp(vPara - e$alpha)
@@ -166,43 +164,43 @@ nHessian = function(fx, x)
   return(H)
 }
 
+g2inv = function(A, Augmented=FALSE, eps=1e-8)
+{
+  idx = abs(diag(A)) > eps
+  p = sum(idx, na.rm=T)
+  p0 = ifelse(Augmented, p - 1, p)
+  if (p == 0 | p0 < 1) { A[, ] = 0 ; attr(A, "rank") = 0 ; return(A) }
+  B = A[idx, idx, drop=F]
+
+  r = 0
+  for (k in 1:p0) {
+    d = B[k, k]
+    if (abs(d) < eps) { B[k, ] = 0 ; B[, k] = 0 ; next }
+    B[k, ] = B[k, ]/d
+    r = r + 1
+    for (i in 1:p) {
+      if (i != k) {
+        c0 = B[i, k]
+        B[i, ] = B[i, ] - c0*B[k, ]
+        B[i, k] = -c0/d
+      }
+    }
+    B[k, k] = 1/d
+  }
+
+  A[!idx, !idx] = 0
+  A[idx, idx] = B
+  attr(A, "rank") = r
+  return(A)
+}
+
 Hougaard = function(J, H, ssq)
 {# J : graident, H: hessian, ssq: sigma square  
   z = NCOL(J)
   m = NROW(J)
   if (z*m == 0) stop("No graident information!")
 
-  G2SWEEP = function(A, Augmented=FALSE, eps=1e-8)
-  {
-    idx = abs(diag(A)) > eps
-    p = sum(idx, na.rm=T)
-    p0 = ifelse(Augmented, p - 1, p)
-    if (p == 0 | p0 < 1) { A[, ] = 0 ; attr(A, "rank") = 0 ; return(A) }
-    B = A[idx, idx, drop=F]
-
-    r = 0
-    for (k in 1:p0) {
-      d = B[k, k]
-      if (abs(d) < eps) { B[k, ] = 0 ; B[, k] = 0 ; next }
-      B[k, ] = B[k, ]/d
-      r = r + 1
-      for (i in 1:p) {
-        if (i != k) {
-          c0 = B[i, k]
-          B[i, ] = B[i, ] - c0*B[k, ]
-          B[i, k] = -c0/d
-        }
-      }
-      B[k, k] = 1/d
-    }
-
-    A[!idx, !idx] = 0
-    A[idx, idx] = B
-    attr(A, "rank") = r
-    return(A)
-  }
-
-  L = G2SWEEP(crossprod(J))
+  L = g2inv(crossprod(J))
   if (attr(L, "rank") < ncol(L)) warning("Crossproduct of gradient is singular!")
 
   W = rep(0, z^3)
@@ -233,51 +231,3 @@ Hougaard = function(J, H, ssq)
   names(SK) = colnames(J)
   return(SK)
 }
-
-pProf = function(Title = "", ...)
-{
-  mfRow = ceiling(sqrt(e$nPara))
-  mfCol = ceiling(e$nPara/mfRow)
-  oPar = par(mfrow=c(mfRow, mfCol))
-  Args = list(...)
-  if (is.null(Args$ylab)) Args$ylab = "-2LL"
-  if (is.null(Args$type)) Args$type = "l"
-
-  for (j in 1:e$nPara) {
-    x = e$mPar[, j]
-    y = e$mOFV[, j]
-    if (is.finite(min(x)) & is.finite(max(x)) & is.finite(min(y, na.rm=T)) & is.finite(max(y, na.rm=T))) {
-      Args$x = x
-      Args$y = y
-      RdUdL = format((e$LI[2, j] - e$PE[j])/(e$PE[j] - e$LI[1, j]), digits=3)
-      Args$xlab = paste0(e$pNames[j], " = ", format(e$PE[j], digits=2), ", dU/dL = ", RdUdL)
-      do.call(plot, Args)
-      abline(h = e$'-2LL' + e$fCut, lty=2)
-      abline(v = e$PE[j], lty=3)
-      text(e$LI[, j], e$'-2LL', labels = format(e$LI[, j], digits=2))
-    }
-  }
-  if (trimws(Title) != "") title(Title, outer=TRUE)
-  par(oPar)
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

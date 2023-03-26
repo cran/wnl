@@ -1,6 +1,6 @@
-nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms, Method="L-BFGS-B", Sx, k=20)
+nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms, Method="L-BFGS-B", Sx, conf.level=0.95, k)
 {
-#  e = new.env(parent=globalenv()) # environment should exist
+#  e = new.env(parent=globalenv()) # environment should exist before call this function
   t1 = Sys.time()
   e$Fx = Fx # function of structural model. Fx should return a vector of the same length to Y
   if (toupper(Error) == "S") e$Sx = Sx # Scale (inverse weight) function. Sx should return a matrix of the same length rows to Y
@@ -10,7 +10,7 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
     e$nRec = nrow(e$Y)
   } else {
     if (!("DV" %in% colnames(Data))) stop("Data should have 'DV' column.")
-    if (mean(abs(Data[,"DV"])) < 1e-6 | mean(abs(Data[,"DV"])) > 1e6) warning("DV is too large or too small. Rescale it.")
+    if (mean(abs(Data[, "DV"])) < 1e-6 | mean(abs(Data[,"DV"])) > 1e6) warning("DV is too large or too small. Rescale it.")
     e$Y  = Data[, "DV"] # Observation values, Data should have "DV" column.
     e$nRec = length(e$Y)
     if (sum(is.na(Data[, "DV"])) > 0) stop("DV column should not have NAs.")
@@ -76,7 +76,7 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
 #    e$UB[e$nTheta+1] = 1
 #  }
 
-  e$alpha  = 0.1 - log((e$IE - e$LB)/(e$UB - e$LB)/(1 - (e$IE - e$LB)/(e$UB - e$LB))) # scaling constant
+  e$alpha  = 0.1 - log((e$IE - e$LB)/(e$UB - e$LB)/(1 - (e$IE - e$LB)/(e$UB - e$LB))) # scaling constant, NOT maximal allowable probabiliy of type 1 error
   if (e$nEps > 0) {
     e$SGindex = (e$nTheta + 1):(e$nTheta + e$nEps) # index of error variance(s)
   } else {
@@ -90,7 +90,11 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   e$PE = exp(e$r$par - e$alpha)/(exp(e$r$par - e$alpha) + 1)*(e$UB - e$LB) + e$LB
 
   e$InvCov = hessian(e$Obj, e$PE)/2  # FinalEst from EstStep()
-  e$Cov = qr.solve(e$InvCov)
+  e$Cov = try(solve(e$InvCov), silent=T)
+  if (!is.matrix(e$Cov)) {
+    e$Cov = g2inv(e$InvCov)
+    warning("Hessian is singular")
+  }
   colnames(e$Cov) = e$pNames
   rownames(e$Cov) = e$pNames
 
@@ -140,8 +144,15 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
     }
     e$Est = cbind(e$Est, tRes)
   }
-  e$Pred = e$Fx(e$PE[1:e$nTheta])
-  e$Residual = e$Y - e$Pred
+
+  tCut = qt(0.5 + conf.level/2, max(e$nRec - e$nPara, 1))
+  e$Est = rbind(e$Est, LL=e$Est["PE",] - tCut*e$Est["SE",], UL=e$Est["PE",] + tCut*e$Est["SE",])
+
+  zCut = qnorm(0.5 + conf.level/2) # 1.959964
+  e$zCI = rbind(e$Est["PE",] - zCut*e$Est["SE",], e$Est["PE",] + zCut*e$Est["SE",])
+  rownames(e$zCI) = c("LL", "UL")
+
+  e$Residual = e$Y - e$Fi
   if (Error == "NOSG") {
     e$Residual[e$Y == -1] = 0
     e$nRec = sum(e$Y != -1)
@@ -157,86 +168,91 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
 ## Likelihood Profile
   cAdd = e$nRec*log(2*pi)
   nRes = 51
-  Alpha = 0.05
-  zCut = qnorm(1 - Alpha/2) # 1.959964
-  e$zCI = rbind(e$PE - zCut*e$SE, e$PE + zCut*e$SE)[, 1:e$nPara]
-  rownames(e$zCI) = c("Lower", "Upper")
-
-  tCut = qt(1 - Alpha/2, e$nRec - e$nPara)
-  e$tCI = rbind(e$PE - tCut*e$SE, e$PE + tCut*e$SE)[, 1:e$nPara]
-  rownames(e$tCI) = c("Lower", "Upper")
-
-  #e$fCut = qf(1 - Alpha, 1, e$nRec - e$nPara) ; e$fCut # PE change -> SE, sigma change
-  #e$fCut = 2*exp(zCut^2/2) ; e$fCut
-  #e$fCut = 2*exp(tCut^2/2) ; e$fCut
-  e$fCut = 2*log(k) # 1/k likelihood interval
-
-  e$mOFV = matrix(nrow=nRes, ncol=e$nPara)
-  e$mPar = matrix(nrow=nRes, ncol=e$nPara)
-  for (j in 1:e$nPara) {
-    for (k1 in (1:9)/2) {
-      tPar = e$PE
-      tPar[j] = e$PE[j] - k1*zCut*e$SE[j]
-      tOfv = e$Obj(tPar) - e$r$value - e$fCut
-      if (is.finite(tOfv) & tOfv > 0) break
-    }
-    for (k2 in (1:50)/2) {
-      tPar = e$PE
-      tPar[j] = e$PE[j] + k2*zCut*e$SE[j]
-      tOfv = e$Obj(tPar) - e$r$value - e$fCut
-      if (is.finite(tOfv) & tOfv > 0) break
-    }
-
-    e$mPar[, j] = seq(e$PE[j] - k1*zCut*e$SE[j], e$PE[j] + k2*zCut*e$SE[j], length.out=nRes)
-    for (i in 1:nRes) {
-      tPar = e$PE
-      tPar[j] = e$mPar[i, j]
-      e$mOFV[i, j] = cAdd + e$Obj(tPar) # -2LL
-    }
+#  logk = ifelse(missing(k), qnorm(0.5 + conf.level/2), log(k)) # If nRec > 60, this is OK.
+  logk = ifelse(missing(k), qt(0.5 + conf.level/2, e$nRec), log(k))
+  e$fCut = 2*logk # used in pProf(), do not remove
+  fx = function(x, j, ylevel) {
+    tPar = e$PE
+    tPar[j] = x
+    e$Obj(tPar) - e$r$value - ylevel # Obj is 2LL not LL !!!
   }
 
-## Lihood Interval (LI)
-  mSign = sign(e$mOFV - cAdd -e$r$value - e$fCut)
-  e$mParB = matrix(nrow=4, ncol=e$nPara)
+  options(warn=-1) # before calling uniroot
+
+  e$mParB = matrix(nrow=2, ncol=e$nPara) # matrix parameter bound
+  colnames(e$mParB) = e$pNames[1:e$nPara]
+  eps = 1e-10
   for (j in 1:e$nPara) {
-    if (min(which(mSign[, j] < 0)) > 1) {
-      e$mParB[1, j] = e$mPar[min(which(mSign[, j] < 0)) - 1, j]
-      e$mParB[3, j] = 1
+    if (j > e$nTheta) {
+      stepSize = e$PE[j]/9 # variance terms
     } else {
-      e$mParB[1, j] = e$mPar[1, j]
-      e$mParB[3, j] = 0
+      stepSize = ifelse(e$SE[j] > abs(e$PE[j])/100 & e$SE[j] < 2*abs(e$PE[j]), e$SE[j], abs(e$PE[j]/9))
     }
-    if (max(which(mSign[, j] < 0)) < nRes) {
-      e$mParB[2, j] = e$mPar[max(which(mSign[, j] < 0)) + 1, j]
-      e$mParB[4, j] = 1
-    } else {
-      e$mParB[2, j] = e$mPar[nRes, j]
-      e$mParB[4, j] = 0
+    tLL = e$PE[j] - stepSize
+    minL = ifelse(e$LB[j] < 0, -1e6, 0)
+    tObj = fx(tLL, j, ylevel=2*e$fCut)
+#    while (tObj >= 0) { # if infinite, reduce to 0.3
+#      tLL = 0.3*tLL - 0.7*e$PE[j]
+#      tObj = fx(tLL, j, 2*e$fCut) 
+#    }
+    while (tObj <= 0 & tLL > minL) { # if negative, increase by 2
+      tLL = 3*tLL - 2*e$PE[j]
+      tObj = fx(tLL, j, 2*e$fCut)
     }
+    if (e$LB[j] >= 0 & tLL < 0) tLL = eps
+#    e$mParB[1, j] = tLL
+    rTemp = try(uniroot(fx, c(tLL, e$PE[j]), j=j, ylevel=1.9*e$fCut), silent=TRUE)
+    if (!inherits(rTemp, "try-error")) { e$mParB[1, j] = rTemp$root
+    } else { e$mParB[1, j] = ifelse(e$LB[j] < 0, e$LB[j], max(eps, e$PE[j]/100)) }
+
+    tUL = e$PE[j] + stepSize
+    tObj = fx(tUL, j, ylevel=2*e$fCut)
+#    while (tObj >= 0) { # if infinite, reduce to 0.3
+#      tUL = 0.3*tUL - 0.7*e$PE[j]
+#      tObj = fx(tUL, j, 2*e$fCut) 
+#    }
+    while (tObj <= 0 & tUL < 1e6) { # if negative, increase by 2
+      tUL = 3*tUL - 2*e$PE[j]
+      tObj = fx(tUL, j, 2*e$fCut)
+    }
+#    e$mParB[2, j] = tUL
+    rTemp = try(uniroot(fx, c(e$PE[j], tUL), j=j, ylevel=1.9*e$fCut), silent=TRUE)
+    if (!inherits(rTemp, "try-error")) { e$mParB[2, j] = rTemp$root
+    } else { e$mParB[2, j] = ifelse(e$UB[j] < 0, e$UB[j], 100*e$PE[j]) }
   }
 
   e$LI = matrix(nrow=2, ncol=e$nPara) # Likelihood interval
   colnames(e$LI) = e$pNames[1:e$nPara]
-  rownames(e$LI) = c("Lower", "Upper")
+  rownames(e$LI) = c("LL", "UL")
+  attr(e$LI, "k") = exp(logk)
   for (j in 1:e$nPara) {
-    fx = function(x) {
+    rTemp = try(uniroot(fx, c(e$mParB[1, j], e$PE[j]), j=j, ylevel=e$fCut), silent=TRUE)
+    if (!inherits(rTemp, "try-error")) { 
+      e$LI[1, j] = rTemp$root
+#      if (e$PE[j] - e$mParB[1, j] > 2*(e$PE[j] - e$LI[1, j])) e$mParB[1, j] = 1.5*e$LI[1, j] - 0.5*e$PE[j] # PE - 1.5(PE -LL)
+      if (e$mParB[1, j] < 2*e$LI[1, j] - e$PE[j]) e$mParB[1, j] = 1.5*e$LI[1, j] - 0.5*e$PE[j] # PE - 1.5(PE -LL)
+    } else { e$LI[1, j] = ifelse(j > e$nTheta | e$LB[j] >= 0, 0, -Inf) }
+
+    rTemp = try(uniroot(fx, c(e$PE[j], e$mParB[2, j]), j=j, ylevel=e$fCut), silent=TRUE)
+    if (!inherits(rTemp, "try-error")) { 
+      e$LI[2, j] = rTemp$root
+#      if (e$mParB[2, j] - e$PE[j] > 2*(e$LI[2, j] - e$PE[j])) e$mParB[2, j] = 1.5*e$LI[2, j] - 0.5*e$PE[j] # PE + 1.5(UL - PE)
+      if (e$mParB[2, j] > 2*e$LI[2, j] - e$PE[j]) e$mParB[2, j] = 1.5*e$LI[2, j] - 0.5*e$PE[j] # PE + 1.5(UL - PE)
+    } else { e$LI[2, j] = +Inf }
+  }
+
+  options(warn=0) # end of calling uniroot
+
+  e$mOFV = matrix(nrow=nRes, ncol=e$nPara)
+  e$mPar = matrix(nrow=nRes, ncol=e$nPara)
+  colnames(e$mOFV) = e$pNames[1:e$nPara]
+  colnames(e$mPar) = e$pNames[1:e$nPara]
+  for (j in 1:e$nPara) {
+    e$mPar[, j] = seq(e$mParB[1, j], e$mParB[2, j], length.out=nRes)
+    for (i in 1:nRes) {
       tPar = e$PE
-      tPar[j] = x
-      e$Obj(tPar) - e$r$value - e$fCut
-    }
-    if (e$mParB[3, j] == 1 & is.finite(e$mParB[1, j]) & is.finite(e$PE[j])) {
-      rTemp = try(uniroot(fx, c(e$mParB[1, j], e$PE[j]))$root, silent=TRUE)
-      if (!inherits(rTemp, "try-error")) { e$LI[1, j] = rTemp
-      } else { e$LI[1, j] = NA_real_ }
-    } else {
-      e$LI[1, j] = NA_real_
-    }
-    if (e$mParB[4, j] == 1 & is.finite(e$mParB[2, j]) & is.finite(e$PE[j])) {
-      rTemp = try(uniroot(fx, c(e$PE[j], e$mParB[2, j]))$root, silent=TRUE)
-      if (!inherits(rTemp, "try-error")) { e$LI[2, j] = rTemp
-      } else { e$LI[2, j] = NA_real_ }
-    } else {
-      e$LI[2, j] = NA_real_
+      tPar[j] = e$mPar[i, j]
+      e$mOFV[i, j] = cAdd + e$Obj(tPar) # -2LL
     }
   }
 ##
@@ -247,12 +263,12 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   e$AICc = e$AIC + 2*e$nPara*(e$nPara + 1)/(e$nRec - e$nPara - 1)
   e$BIC = e$'-2LL' + e$nPara*log(e$nRec)
   e$Elapsed = difftime(Sys.time(), t1)
-  
+
   if (e$Error == "A") {
-    Result = list(e$Est, e$LI, e$HouSkew, e$Cov, e$run, e$r$value, e$'-2LL', e$AIC, e$AICc, e$BIC, e$r$covergence, e$r$message, e$Pred, e$Residual)
+    Result = list(e$Est, e$LI, e$HouSkew, e$Cov, e$run, e$r$value, e$'-2LL', e$AIC, e$AICc, e$BIC, e$r$covergence, e$r$message, e$Fi, e$Residual)
     names(Result) = c("Est", "LI", "Skewness", "Cov", "run", "Objective Function Value", "-2LL", "AIC", "AICc", "BIC", "Convergence", "Message", "Prediction", "Residual")
   } else {
-    Result = list(e$Est, e$LI, e$Cov, e$run, e$r$value, e$'-2LL', e$AIC, e$AICc, e$BIC, e$r$covergence, e$r$message, e$Pred, e$Residual)
+    Result = list(e$Est, e$LI, e$Cov, e$run, e$r$value, e$'-2LL', e$AIC, e$AICc, e$BIC, e$r$covergence, e$r$message, e$Fi, e$Residual)
     names(Result) = c("Est", "LI", "Cov", "run", "Objective Function Value", "-2LL", "AIC", "AICc", "BIC", "Convergence", "Message", "Prediction", "Residual")
   }
   Len0 = length(Result)

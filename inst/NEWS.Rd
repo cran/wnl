@@ -1,6 +1,16 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
 
+
+\section{Version 0.7.2 (2023-03-26)}{
+  \itemize{
+    \item{If hessian matrix is singular, g2inv() is used instead of solve().}
+    \item{If k option in nlr() is missing, recommended k for conf.level is used.}
+    \item{pProf() improved and exposed}
+    \item{EnvObj() introduced}
+  }
+}
+
 \section{Version 0.7.1 (2022-11-28)}{
   \itemize{
     \item{pProf() bug fixed for NaNs}

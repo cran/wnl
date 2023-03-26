@@ -8,7 +8,7 @@ wnl5 = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjLS)
   e$nRec = length(e$Y)
   e$IE = IE # initial estimate of Fx arguments
   e$nPara = length(IE)
-  e$Error = UT(Error) # BasicUtil fx toupper and Trim
+  e$Error = toupper(trimws(Error))
   e$Obj = ObjFx
 
   if (missing(LB)) {
