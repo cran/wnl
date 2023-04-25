@@ -168,8 +168,20 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
 ## Likelihood Profile
   cAdd = e$nRec*log(2*pi)
   nRes = 51
-#  logk = ifelse(missing(k), qnorm(0.5 + conf.level/2), log(k)) # If nRec > 60, this is OK.
-  logk = ifelse(missing(k), qt(0.5 + conf.level/2, e$nRec), log(k))
+
+  if (!missing(k)) {
+    logk = log(k)
+  } else if (e$nRec == 1) {
+    logk = log(2/(1 - conf.level))    
+  } else {
+    logk = e$nRec/2*log(1 + qf(conf.level, 1, e$nRec - 1)/(e$nRec - 1))
+    logk = min(logk, log(2/(1 - conf.level))) # Pawitan p240 k = 20 -> p < 0.05
+  }
+#  logk = ifelse(missing(k), q, log(k)) # If nRec > 60, this is OK.
+#  logk = ifelse(missing(k), qt(0.5 + conf.level/2, e$nRec), log(k))
+#  logk = ifelse(missing(k), qt(0.5 + conf.level/2, max(e$nRec - 1, 1))^2/2, log(k))
+#  logk = ifelse(missing(k), qf(conf.level, 1, max(e$nRec - 1, 1))/2, log(k))
+#  logk = min(logk, log(2/(1 - conf.level))) # Pawitan p240 k = 20 -> p < 0.05
   e$fCut = 2*logk # used in pProf(), do not remove
   fx = function(x, j, ylevel) {
     tPar = e$PE

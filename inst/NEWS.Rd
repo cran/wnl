@@ -2,6 +2,12 @@
 \title{News for Package \pkg{wnl}}
 
 
+\section{Version 0.7.3 (2023-04-25)}{
+  \itemize{
+    \item{If default k value in nlr() is adjusted.}
+  }
+}
+
 \section{Version 0.7.2 (2023-03-26)}{
   \itemize{
     \item{If hessian matrix is singular, g2inv() is used instead of solve().}

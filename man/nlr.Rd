@@ -29,7 +29,7 @@ This uses scaled transformed parameters and environment \code{e} internally.
 }
 \value{
   \item{Est}{Point estimate(PE) with standard error(SE) and relative standard error(RSE)}
-  \item{LI}{1/k likelihood interval, at which likelihood drops to 1/k of maximum likelihood. This reflects asymmetry better than confidence interval.}
+  \item{LI}{1/k likelihood interval, at which likelihood drops to 1/k of maximum likelihood. This reflects asymmetry better than confidence interval. This is estimated likelihood interval, not profile likelihood interval.}
   \item{Skewness}{Hougaard's skewness measure. This is printed only with additive error model. See also \code{hSkew}}
   \item{Cov}{Variance-covariance matrix of the objective function at the value of point estimates}
   \item{run$m}{Count of positive residuals}

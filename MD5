@@ -1,4 +1,4 @@
-c9516afbbbaa87491b313b106c506057 *DESCRIPTION
+dcd531c376e9100eee542e50ae21b588 *DESCRIPTION
 390de0872c5e034f3bb65922b8b78051 *NAMESPACE
 83d6bb93ca7f2ebe336d3d1c70e6d5de *R/BasicUtil.R
 ba1255e411249f4db6f2caa66ee30cfe *R/Comp1.R
@@ -12,14 +12,14 @@ b801ef09ac2e1d9c931f1d08fe4a6b90 *R/cmpChi.R
 752433b1b66c620b33c3def811efdc8f *R/dx.R
 9bf4095904c0bf59982cb603c2b69e5c *R/hSkew.R
 ca032758dcb79150beac3ef4564b7cb8 *R/nComp.R
-93e6378dd2b8a641a72a71c2a3177071 *R/nlr.R
+6c3ab16618f11b24fa73adf2d1083d1e *R/nlr.R
 969cb4bf5cab158d9f4b9fbd260ae4e1 *R/pComp.R
-d937f14557cd2f6a8416f6e1bd5c2ca5 *R/pProf.R
+29c541a8d30080132cd50a98484542db *R/pProf.R
 3a85a468ae0dc2bbb899524ea01feccf *R/sysdata.rda
 1c9e1b28728c0f1fc96017efc560b0d6 *R/wnl5.R
-bfc553c5d4e48153218304487a993cc1 *inst/NEWS.Rd
+f9e97cf825c853b1c7161b06fb90cc50 *inst/NEWS.Rd
 75463c4d3bd42432719b597f93dd859d *inst/doc/Compartment-vignette.pdf
-bcc928b45c5b3565a7eb37ffb9ec41dc *inst/doc/wnl-manual.pdf
+13988a98e0e282530ebd7bdcf151ab0b *inst/doc/wnl-manual.pdf
 57010db082832f52da4856e4b3521524 *man/BasicUtil.Rd
 f9ab397c3e89d4acba0f7c5f06e91923 *man/Comp1.Rd
 6c87b1f721849279be48c7474dee83b5 *man/DAT.Rd
@@ -34,8 +34,8 @@ e1e7543809d439770aa7d1cb6e897193 *man/dx.Rd
 ee0ea2d2db69f309039e2d70a791ac0a *man/e.Rd
 d60a1682e9d37ff616877f1ce4738665 *man/hSkew.Rd
 62aedc1f108c168426e5402b454b82e1 *man/nComp.Rd
-ce1ed05a960198b528a52d5009c50d24 *man/nlr.Rd
+4990a914b5d7730be858fd9462f9e750 *man/nlr.Rd
 3a1b70982f3cf42a7bd0a912b81ca182 *man/pComp.Rd
-5fb26ef5fe3aa387797a8b26d2785da0 *man/pProf.Rd
+2c87a9fd98a811d39fd3431176c7b46e *man/pProf.Rd
 8640ba18696633870f706cd63f6d440c *man/wnl-package.Rd
 902adeb3c4af0439299bbd830aa6ed04 *man/wnl5.Rd

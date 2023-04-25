@@ -13,8 +13,10 @@ pProf = function(Bag = e, Title = "", ...)
   if (is.null(Args$type)) Args$type = "l"
 
   for (j in 1:Bag$nPara) {
-    x = Bag$mPar[, j]
-    y = Bag$mOFV[, j]
+    x0 = Bag$mPar[, j]
+    y0 = Bag$mOFV[, j]
+    x = x0[y0 < Bag$`-2LL` + 5*Bag$fCut]
+    y = y0[y0 < Bag$`-2LL` + 5*Bag$fCut]
     if (is.finite(min(x)) & is.finite(max(x)) & is.finite(min(y, na.rm=T)) & is.finite(max(y, na.rm=T))) {
       Args$x = x
       Args$y = y
