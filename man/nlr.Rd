@@ -6,7 +6,7 @@ It performs nonlinear regression usually for pharmacokinetic and pharmacodynamic
 }
 \usage{
 nlr(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms, 
-    Method="L-BFGS-B", Sx, conf.level=0.95, k)
+    Method="L-BFGS-B", Sx, conf.level=0.95, k, fix=0)
 }
 \arguments{
   \item{Fx}{Function for structural model. It should return a vector of the same length to observations.}
@@ -23,6 +23,7 @@ nlr(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms,
   \item{Sx}{Scale function. This is usually the inverse of weight. It should return the same length(nrow) of Y. When Error="S", Scale function should be provided as \code{Sx}.}
   \item{conf.level}{Confidence level for confidence interval}
   \item{k}{1/k likelihood interval(LI) will be provided. Currently recommended value is exp(qf(1 - alpha, 1, nRec-nPara)/2) + 1.}
+  \item{fix}{indices of parameters to fix}
 }
 \details{
 This uses scaled transformed parameters and environment \code{e} internally.
@@ -75,5 +76,15 @@ This uses scaled transformed parameters and environment \code{e} internally.
     print(paste("## ID =", i, "##"))
     print(Res)
   }
+
+  # Another example from radioimmunoassay(RIA)
+  d1 = data.frame(conc = c(200, 100, 50, 25, 12.5, 6.25, 3.125, 0),
+                  DV = c(1.78, 1.5, 1.17, 0.74, 0.51, 0.31, 0.19, 0.04))
+
+  PRED = function(TH) TH[1] + TH[2]*d1$conc^TH[4]/(TH[3]^TH[4] + d1$conc^TH[4])
+  Scale = function(TH) 1/(PRED(TH) - (TH[1] + TH[2])/2)^2
+
+  nlr(PRED, d1, pNames=c("R0", "Rmax", "RC50", "Hill"), IE=c(0.1, 3, 50, 1), 
+      Error="S", Sx=Scale)
 }
 \keyword{Maximum Likelihood Estimation}

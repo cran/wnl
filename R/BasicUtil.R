@@ -164,16 +164,14 @@ nHessian = function(fx, x)
   return(H)
 }
 
-g2inv = function(A, Augmented=FALSE, eps=1e-8)
+g2inv = function(A, eps=1e-8)
 {
   idx = abs(diag(A)) > eps
   p = sum(idx, na.rm=T)
-  p0 = ifelse(Augmented, p - 1, p)
-  if (p == 0 | p0 < 1) { A[, ] = 0 ; attr(A, "rank") = 0 ; return(A) }
+  if (p == 0) { M[, ] = 0 ; attr(M, "rank") = 0 ; return(M) }
   B = A[idx, idx, drop=F]
-
   r = 0
-  for (k in 1:p0) {
+  for (k in 1:p) {
     d = B[k, k]
     if (abs(d) < eps) { B[k, ] = 0 ; B[, k] = 0 ; next }
     B[k, ] = B[k, ]/d
@@ -188,10 +186,11 @@ g2inv = function(A, Augmented=FALSE, eps=1e-8)
     B[k, k] = 1/d
   }
 
-  A[!idx, !idx] = 0
-  A[idx, idx] = B
-  attr(A, "rank") = r
-  return(A)
+  M = matrix(0, nrow=NCOL(A), ncol=NROW(A))
+  M[1:r, 1:r] = B[1:r, 1:r]
+  attr(M, "rank") = r
+
+  return(M)
 }
 
 Hougaard = function(J, H, ssq)

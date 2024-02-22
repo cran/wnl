@@ -1,10 +1,14 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
-
+\section{Version 0.8.0 (2024-02-22)}{
+  \itemize{
+    \item{g2inv utility function is revised to handle non-square matrix.}
+  }
+}
 
 \section{Version 0.7.3 (2023-04-25)}{
   \itemize{
-    \item{If default k value in nlr() is adjusted.}
+    \item{Default k value in nlr() is adjusted.}
   }
 }
 

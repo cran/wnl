@@ -1,4 +1,4 @@
-nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms, Method="L-BFGS-B", Sx, conf.level=0.95, k)
+nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, SecForms, Method="L-BFGS-B", Sx, conf.level=0.95, k, fix=0)
 {
 #  e = new.env(parent=globalenv()) # environment should exist before call this function
   t1 = Sys.time()
@@ -10,14 +10,13 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
     e$nRec = nrow(e$Y)
   } else {
     if (!("DV" %in% colnames(Data))) stop("Data should have 'DV' column.")
-    if (mean(abs(Data[, "DV"])) < 1e-6 | mean(abs(Data[,"DV"])) > 1e6) warning("DV is too large or too small. Rescale it.")
+    if (mean(abs(Data[, "DV"])) < 1e-6 | mean(abs(Data[, "DV"])) > 1e6) warning("DV is too large or too small. Rescale it.")
     e$Y  = Data[, "DV"] # Observation values, Data should have "DV" column.
     e$nRec = length(e$Y)
     if (sum(is.na(Data[, "DV"])) > 0) stop("DV column should not have NAs.")
   }
 
   if (length(pNames) != length(IE)) stop("pNames and IE should match.")
-
   e$pNames = pNames # parameter names in the order of Fx arguments
   e$IE = IE # initial estimate of Fx arguments
   e$nTheta = length(IE)
@@ -86,10 +85,37 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
 #   e$Ci = cbind(rep(SG1*SG1, e$nRec), rep(SG2*SG2, e$nRec))
 #   e$SumLogCi = sum(log(e$Ci))
   }
+
+  e$IE0 = e$IE
+  e$nPara0 = e$nPara
+  e$nTheta0 = e$nTheta
+  e$SGindex0 = e$SGindex
+  e$fix0 = fix
+  e$fix = e$fix0
+  e$toEst = which(!(1:e$nPara %in% e$fix))
+  e$pNames= e$pNames[e$toEst]
+  e$IE = e$IE[e$toEst]
+  e$LB = e$LB[e$toEst]
+  e$UB = e$UB[e$toEst]
+  e$nTheta = sum(1:e$nTheta %in% e$toEst)
+  e$nPara = length(e$toEst)
+  e$nEps = sum((1 + e$nTheta0):e$nPara0 %in% e$toEst)
+  if (e$nEps > 0) {
+    e$SGindex = (e$nTheta + 1):(e$nTheta + e$nEps) # index of error variance(s)
+  } else {
+    e$SGindex = 0
+  }
+  e$alpha = e$alpha[e$toEst]
+
   e$r = optim(rep(0.1, e$nPara), ObjEst, method=Method)
   e$PE = exp(e$r$par - e$alpha)/(exp(e$r$par - e$alpha) + 1)*(e$UB - e$LB) + e$LB
 
+#  e$PE0 = vector(length=e$nPara0)
+#  e$PE0[e$toEst] = e$PE
+#  e$PE0[e$fix] = e$IE0[e$fix]
+#  e$InvCov = hessian(e$Obj, e$PE0)/2  # FinalEst from EstStep()
   e$InvCov = hessian(e$Obj, e$PE)/2  # FinalEst from EstStep()
+  e$InvCov = e$InvCov
   e$Cov = try(solve(e$InvCov), silent=T)
   if (!is.matrix(e$Cov)) {
     e$Cov = g2inv(e$InvCov)
@@ -109,6 +135,19 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   e$Correl = cov2cor(e$Cov)
   e$EigenVal = eigen(e$Correl)$values
 
+## Hougaard Skewness
+  if (e$Error == "A") {
+    e$PE0 = vector(length=e$nPara0)
+    e$PE0[e$toEst] = e$PE
+    e$PE0[e$fix] = e$IE0[e$fix]
+    
+    e$J = nGradient(e$Fx, e$PE0[1:e$nTheta0])
+    e$H = nHessian(e$Fx, e$PE0[1:e$nTheta0])
+    e$HouSkew = Hougaard(e$J, e$H, e$PE0[e$SGindex0])
+    names(e$HouSkew) = pNames
+  }
+
+## SE
   if (e$SGindex[1] > 0) {
     e$PE = c(e$PE, sqrt(e$PE[e$SGindex]))
     e$SE = c(e$SE, e$SE[e$SGindex]/2/sqrt(e$PE[e$SGindex])) # Delta method, See Wackerly p484, gr = (x^0.5)' = 0.5x^(-0.5), gr^2 = 1/(4*x)
@@ -156,13 +195,6 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   if (Error == "NOSG") {
     e$Residual[e$Y == -1] = 0
     e$nRec = sum(e$Y != -1)
-  }
-
-## Hougaard Skewness
-  if (e$Error == "A") {
-    e$J = nGradient(e$Fx, e$PE[1:e$nTheta])
-    e$H = nHessian(e$Fx, e$PE[1:e$nTheta])
-    e$HouSkew = Hougaard(e$J, e$H, e$PE[e$SGindex])
   }
 
 ## Likelihood Profile
@@ -255,6 +287,27 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
 
   options(warn=0) # end of calling uniroot
 
+  if (e$SGindex[1] > 0) {
+    e$LI = cbind(e$LI, sqrt(e$LI[, e$SGindex]))
+    colnames(e$LI) = colnames(e$Est)[1:(e$nPara + length(e$SGindex))]
+  }
+
+  if (!missing(SecNames)) {
+    nSec = length(SecNames)
+    tRes = matrix(nrow=2, ncol=nSec)
+    colnames(tRes) = SecNames
+    rownames(tRes) = c("LL", "UL")
+    for (i in 1:nSec) {
+      fx2 = deriv(SecForms[[i]], e$pNames, function.arg=e$pNames, func=TRUE)
+      tv1 = do.call("fx2", as.list(e$LI[1, e$pNames]))
+      tv2 = do.call("fx2", as.list(e$LI[2, e$pNames]))
+      tRes[, i] = sort(c(tv1, tv2))
+    }
+    e$LI = cbind(e$LI, tRes)
+  }
+  colnames(e$LI) = colnames(e$Est)
+  attr(e$LI, "k") = exp(logk)
+
   e$mOFV = matrix(nrow=nRes, ncol=e$nPara)
   e$mPar = matrix(nrow=nRes, ncol=e$nPara)
   colnames(e$mOFV) = e$pNames[1:e$nPara]
@@ -262,7 +315,7 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   for (j in 1:e$nPara) {
     e$mPar[, j] = seq(e$mParB[1, j], e$mParB[2, j], length.out=nRes)
     for (i in 1:nRes) {
-      tPar = e$PE
+      tPar = e$PE[1:e$nPara0]
       tPar[j] = e$mPar[i, j]
       e$mOFV[i, j] = cAdd + e$Obj(tPar) # -2LL
     }
