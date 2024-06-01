@@ -115,7 +115,6 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
 #  e$PE0[e$fix] = e$IE0[e$fix]
 #  e$InvCov = hessian(e$Obj, e$PE0)/2  # FinalEst from EstStep()
   e$InvCov = hessian(e$Obj, e$PE)/2  # FinalEst from EstStep()
-  e$InvCov = e$InvCov
   e$Cov = try(solve(e$InvCov), silent=T)
   if (!is.matrix(e$Cov)) {
     e$Cov = g2inv(e$InvCov)

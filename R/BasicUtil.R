@@ -168,7 +168,8 @@ g2inv = function(A, eps=1e-8)
 {
   idx = abs(diag(A)) > eps
   p = sum(idx, na.rm=T)
-  if (p == 0) { M[, ] = 0 ; attr(M, "rank") = 0 ; return(M) }
+  M = matrix(0, nrow=NCOL(A), ncol=NROW(A))
+  if (p == 0) {attr(M, "rank") = 0 ; return(M) }
   B = A[idx, idx, drop=F]
   r = 0
   for (k in 1:p) {
@@ -185,11 +186,8 @@ g2inv = function(A, eps=1e-8)
     }
     B[k, k] = 1/d
   }
-
-  M = matrix(0, nrow=NCOL(A), ncol=NROW(A))
   M[1:r, 1:r] = B[1:r, 1:r]
   attr(M, "rank") = r
-
   return(M)
 }
 
