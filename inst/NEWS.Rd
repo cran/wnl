@@ -1,10 +1,17 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
+\section{Version 0.8.2 (2025-02-21)}{
+  \itemize{
+    \item{logk in nlr adjusted}
+  }
+}
+
 \section{Version 0.8.1 (2024-05-31)}{
   \itemize{
     \item{g2inv utility function bug with p=0 fixed.}
   }
 }
+
 \section{Version 0.8.0 (2024-02-22)}{
   \itemize{
     \item{g2inv utility function is revised to handle non-square matrix.}

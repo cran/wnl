@@ -17,6 +17,7 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   }
 
   if (length(pNames) != length(IE)) stop("pNames and IE should match.")
+
   e$pNames = pNames # parameter names in the order of Fx arguments
   e$IE = IE # initial estimate of Fx arguments
   e$nTheta = length(IE)
@@ -139,7 +140,7 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
     e$PE0 = vector(length=e$nPara0)
     e$PE0[e$toEst] = e$PE
     e$PE0[e$fix] = e$IE0[e$fix]
-    
+
     e$J = nGradient(e$Fx, e$PE0[1:e$nTheta0])
     e$H = nHessian(e$Fx, e$PE0[1:e$nTheta0])
     e$HouSkew = Hougaard(e$J, e$H, e$PE0[e$SGindex0])
@@ -203,9 +204,12 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   if (!missing(k)) {
     logk = log(k)
   } else if (e$nRec == 1) {
-    logk = log(2/(1 - conf.level))    
+    logk = log(2/(1 - conf.level))
   } else {
-    logk = e$nRec/2*log(1 + qf(conf.level, 1, e$nRec - 1)/(e$nRec - 1))
+#    logk = e$nRec/2*log(1 + qf(conf.level, 1, e$nRec - 1)/(e$nRec - 1))
+#    logk = e$nRec/2*log(1 + qf(conf.level, 1, e$nRec - e$nPara)/(e$nRec - e$nPara))
+    df2 = max(2, e$nRec - e$nPara)
+    logk = e$nRec/2*log(1 + qf(conf.level, 1, df2)/df2)
     logk = min(logk, log(2/(1 - conf.level))) # Pawitan p240 k = 20 -> p < 0.05
   }
 #  logk = ifelse(missing(k), q, log(k)) # If nRec > 60, this is OK.
@@ -236,7 +240,7 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
     tObj = fx(tLL, j, ylevel=2*e$fCut)
 #    while (tObj >= 0) { # if infinite, reduce to 0.3
 #      tLL = 0.3*tLL - 0.7*e$PE[j]
-#      tObj = fx(tLL, j, 2*e$fCut) 
+#      tObj = fx(tLL, j, 2*e$fCut)
 #    }
     while (tObj <= 0 & tLL > minL) { # if negative, increase by 2
       tLL = 3*tLL - 2*e$PE[j]
@@ -252,7 +256,7 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
     tObj = fx(tUL, j, ylevel=2*e$fCut)
 #    while (tObj >= 0) { # if infinite, reduce to 0.3
 #      tUL = 0.3*tUL - 0.7*e$PE[j]
-#      tObj = fx(tUL, j, 2*e$fCut) 
+#      tObj = fx(tUL, j, 2*e$fCut)
 #    }
     while (tObj <= 0 & tUL < 1e6) { # if negative, increase by 2
       tUL = 3*tUL - 2*e$PE[j]
@@ -270,14 +274,14 @@ nlr = function(Fx, Data, pNames, IE, LB, UB, Error="A", ObjFx=ObjDef, SecNames, 
   attr(e$LI, "k") = exp(logk)
   for (j in 1:e$nPara) {
     rTemp = try(uniroot(fx, c(e$mParB[1, j], e$PE[j]), j=j, ylevel=e$fCut), silent=TRUE)
-    if (!inherits(rTemp, "try-error")) { 
+    if (!inherits(rTemp, "try-error")) {
       e$LI[1, j] = rTemp$root
 #      if (e$PE[j] - e$mParB[1, j] > 2*(e$PE[j] - e$LI[1, j])) e$mParB[1, j] = 1.5*e$LI[1, j] - 0.5*e$PE[j] # PE - 1.5(PE -LL)
       if (e$mParB[1, j] < 2*e$LI[1, j] - e$PE[j]) e$mParB[1, j] = 1.5*e$LI[1, j] - 0.5*e$PE[j] # PE - 1.5(PE -LL)
     } else { e$LI[1, j] = ifelse(j > e$nTheta | e$LB[j] >= 0, 0, -Inf) }
 
     rTemp = try(uniroot(fx, c(e$PE[j], e$mParB[2, j]), j=j, ylevel=e$fCut), silent=TRUE)
-    if (!inherits(rTemp, "try-error")) { 
+    if (!inherits(rTemp, "try-error")) {
       e$LI[2, j] = rTemp$root
 #      if (e$mParB[2, j] - e$PE[j] > 2*(e$LI[2, j] - e$PE[j])) e$mParB[2, j] = 1.5*e$LI[2, j] - 0.5*e$PE[j] # PE + 1.5(UL - PE)
       if (e$mParB[2, j] > 2*e$LI[2, j] - e$PE[j]) e$mParB[2, j] = 1.5*e$LI[2, j] - 0.5*e$PE[j] # PE + 1.5(UL - PE)
