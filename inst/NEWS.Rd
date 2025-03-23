@@ -1,5 +1,11 @@
 \name{NEWS}
 \title{News for Package \pkg{wnl}}
+\section{Version 0.8.3 (2025-02-23)}{
+  \itemize{
+    \item{A bug in ExpandDH is fixed.}
+  }
+}
+
 \section{Version 0.8.2 (2025-02-21)}{
   \itemize{
     \item{logk in nlr adjusted}
